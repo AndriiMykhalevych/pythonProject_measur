@@ -29,7 +29,7 @@ class Realisesampling:
     def samplemeasurements1(self, startofsampling: datetime):
         datalines = re.findall("\{(.*?)\}", self.inputtext)
         datalines.sort()
-        m2 = Measurement(datetime.fromisoformat('2000-01-03T10:04:45'), MeasType.TEMP, 35.79)
+        m2 = Measurement()
         for x in datalines:
             x1 = x.replace(" ", "")
             l3 = x1.split(",")
@@ -38,22 +38,18 @@ class Realisesampling:
                 break
             m2.measurementType = eval("MeasType."+l3[1])
             m2.value = l3[2]
-            list1 = [m2]
-            self.samplemeasurements(list1)
-
-    def samplemeasurements(self, unsampledmeasurements: list[Measurement]):
-        for mesur in unsampledmeasurements:
-            tminperiod = mesur.measurementTime.timetuple()
+            tminperiod = m2.measurementTime.timetuple()
             minperiod = tminperiod[4]
             fordelta = minperiod//5*5
-            timewithdelta = mesur.measurementTime.replace(minute=fordelta, second=0)
+            timewithdelta = m2.measurementTime.replace(minute=fordelta, second=0)
             timewithdelta = timewithdelta + timedelta(minutes=5)
-            ind_dict = mesur.measurementType.name
+            ind_dict = m2.measurementType.name
             self.dicttypes[ind_dict, timewithdelta] = \
-                (timewithdelta.isoformat(), mesur.measurementType.name, mesur.value)
+                (timewithdelta.isoformat(), m2.measurementType.name, m2.value)
 
 
 r = Realisesampling()
 r.samplemeasurements1(datetime.fromisoformat(r.dtstart))
 for line1 in r.dicttypes.values():
     r.outputlines += (str(line1).replace("'", "").replace("(", "{").replace(")", "}")+"\n")
+print(r.outputlines)
